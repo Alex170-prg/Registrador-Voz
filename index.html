@@ -3,69 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registrador de Voz Profesional (A-Z)</title>
+    <title>Registrador de Voz Profesional A-Z</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6;
-            color: #333;
-            margin: 0;
-            padding: 40px 20px;
-            text-align: center;
+            background-color: #f4f7f6; color: #333; margin: 0; padding: 40px 20px; text-align: center;
         }
-        /* Pantalla de bloqueo */
         #pantalla-bloqueo {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #1f4e79;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            color: white;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #1f4e79; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 9999; color: white;
         }
-        #pantalla-bloqueo input {
-            padding: 12px; font-size: 16px; border-radius: 6px; border: none; margin-top: 15px; width: 200px; text-align: center;
-        }
-        #pantalla-bloqueo button {
-            padding: 10px 20px; margin-top: 10px; border: none; background-color: #107c41; color: white; font-weight: bold; border-radius: 6px; cursor: pointer;
-        }
-        /* Contenedor Principal */
-        .container {
-            display: none;
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        }
+        #pantalla-bloqueo input { padding: 12px; font-size: 16px; border-radius: 6px; border: none; margin-top: 15px; width: 200px; text-align: center; }
+        #pantalla-bloqueo button { padding: 10px 20px; margin-top: 10px; border: none; background-color: #107c41; color: white; font-weight: bold; border-radius: 6px; cursor: pointer; }
+        .container { display: none; max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         h1 { color: #1f4e79; margin-bottom: 5px; }
-        .instructions {
-            background: #eef4fa; padding: 15px; border-radius: 8px; font-size: 14px; color: #333; margin-bottom: 25px; text-align: left;
-            line-height: 1.6;
-        }
-        .btn-mic {
-            background-color: #1f4e79; color: white; border: none; padding: 15px 30px; font-size: 18px; font-weight: bold; border-radius: 50px; cursor: pointer; transition: all 0.3s ease;
-        }
+        .instructions { background: #eef4fa; padding: 15px; border-radius: 8px; font-size: 14px; color: #333; margin-bottom: 25px; text-align: left; line-height: 1.6; }
+        .btn-mic { background-color: #1f4e79; color: white; border: none; padding: 15px 30px; font-size: 18px; font-weight: bold; border-radius: 50px; cursor: pointer; transition: all 0.3s ease; }
         .btn-mic.escuchando { background-color: #d9534f; animation: pulso 1.5s infinite; }
         #pantalla-estado { margin: 20px 0; padding: 15px; background-color: #f8f9fa; border-radius: 8px; min-height: 50px; font-size: 18px; }
         #posicion-actual { font-weight: bold; color: #2f5597; margin-bottom: 15px; font-size: 16px; }
-        
-        .tabla-contenedor { 
-            width: 100%; 
-            overflow-x: auto; 
-            margin-top: 20px; 
-            border-radius: 8px; 
-            box-shadow: 0 0 10px rgba(0,0,0,0.02); 
-        }
+        .tabla-contenedor { width: 100%; overflow-x: auto; margin-top: 20px; border-radius: 8px; }
         table { width: 100%; border-collapse: collapse; min-width: 1800px; }
         th, td { padding: 10px 5px; border-bottom: 1px solid #ddd; text-align: center; font-size: 13px; min-width: 65px; }
         th { background-color: #2f5597; color: white; }
         tr:nth-child(even) { background-color: #f9fbfd; }
         .btn-excel { background-color: #107c41; color: white; border: none; padding: 12px 25px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; margin-top: 25px; }
-        .btn-excel:disabled { background-color: #cccccc; cursor: not-allowed; }
         @keyframes pulso { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
     </style>
 </head>
@@ -73,215 +36,153 @@
 
     <div id="pantalla-bloqueo">
         <h2>🔒 Sistema Privado de Registro</h2>
-        <p>Por favor, ingresa la contraseña de acceso:</p>
+        <p>Introduce la contraseña:</p>
         <input type="password" id="input-password" placeholder="Contraseña">
         <button id="btn-login">Ingresar</button>
-        <p id="error-password" style="color: #ff9999; margin-top: 10px; display: none;">Contraseña incorrecta. Inténtalo de nuevo.</p>
+        <p id="error-password" style="color: #ff9999; margin-top: 10px; display: none;">Incorrecta.</p>
     </div>
 
     <div class="container" id="app-content">
-        <h1>Registro Vertical por Voz (Columnas A - Z)</h1>
-        
+        <h1>Registrador de Voz Profesional (A-Z)</h1>
         <div class="instructions">
-            <strong>Comandos de voz disponibles:</strong><br>
-            • Di un número entero o decimal + <strong>"guardar"</strong> (Ej: <em>"45 punto 2 guardar"</em> o <em>"120 guardar"</em>).<br>
-            • Di <strong>"siguiente columna"</strong> para moverte una posición a la derecha.<br>
-            • Di <strong>"ir a columna [Letra]"</strong> o <strong>"columna [Letra]"</strong> para saltar directamente (Ej: <em>"ir a columna E"</em> o <em>"columna Z"</em>).
+            • Di un número (ej: <strong>"45.2 guardar"</strong> o <strong>"uno guardar"</strong>).<br>
+            • Di <strong>"columna [Letra]"</strong> para saltar. El sistema recordará en qué fila te quedaste en esa letra.
+            ⁜Nota: Cualquier valor numerico erroneo, puede corregirlo dentro del archivo generado de Excel.
         </div>
 
-        <div id="posicion-actual">📍 Posición actual en Excel: Fila 1, Columna A</div>
-        
+        <div id="posicion-actual">📍 Fila 1, Columna A</div>
         <button id="boton-escuchar" class="btn-mic">🎤 Empezar a escuchar</button>
-        
         <div id="pantalla-estado"><span style="color: #999;">Micrófono apagado.</span></div>
 
-        <h3>📋 Vista Previa de la Tabla</h3>
         <div class="tabla-contenedor">
             <table>
-                <thead>
-                    <tr id="encabezado-tabla">
-                        <th>Fila</th>
-                    </tr>
-                </thead>
+                <thead><tr id="encabezado-tabla"><th>Fila</th></tr></thead>
                 <tbody id="cuerpo-tabla"></tbody>
             </table>
         </div>
-
-        <button id="boton-descargar" class="btn-excel" disabled>📥 Descargar Reporte Excel (.csv)</button>
+        <button id="boton-descargar" class="btn-excel" disabled>📥 Descargar Excel (.csv)</button>
     </div>
 
     <script>
-        // --- CONTROL DE CONTRASEÑA ---
-        const CONTRASEÑA_CORRECTA = "C134"; 
+        const CONTRASEÑA_CORRECTA = "C134";
+        const letrasColumnas = Array.from({length: 26}, (_, i) => String.fromCharCode(65 + i));
         
-        document.getElementById('btn-login').addEventListener('click', validarAcceso);
-        document.getElementById('input-password').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') validarAcceso();
-        });
+        // --- MEMORIA POR COLUMNA ---
+        let filaActual = 1; 
+        let columnaActual = 0; 
+        let filasPorColumna = Array(26).fill(1); // Guarda la próxima fila disponible para cada letra A-Z
 
-        function validarAcceso() {
-            const passIntroducida = document.getElementById('input-password').value;
-            if (passIntroducida === CONTRASEÑA_CORRECTA) {
+        const diccionarioNumeros = {
+            "cero": 0, "uno": 1, "una": 1, "dos": 2, "tres": 3, "cuatro": 4, 
+            "cinco": 5, "seis": 6, "siete": 7, "ocho": 8, "nueve": 9, "diez": 10
+        };
+
+        // Preparar tabla
+        const encabezado = document.getElementById('encabezado-tabla');
+        letrasColumnas.forEach(l => { const th = document.createElement('th'); th.innerText = `Col ${l}`; encabezado.appendChild(th); });
+
+        let matrizDatos = [Array(26).fill("")]; 
+        for(let i = 1; i <= 10; i++) { agregarFilaVisual(i); } // Iniciamos con 10 filas visibles
+
+        // --- LÓGICA ACCESO ---
+        document.getElementById('btn-login').onclick = () => {
+            if(document.getElementById('input-password').value === CONTRASEÑA_CORRECTA) {
                 document.getElementById('pantalla-bloqueo').style.display = 'none';
                 document.getElementById('app-content').style.display = 'block';
-            } else {
-                document.getElementById('error-password').style.display = 'block';
-            }
-        }
+            } else { document.getElementById('error-password').style.display = 'block'; }
+        };
 
-        // --- LÓGICA DE LA APLICACIÓN ---
-        const boton = document.getElementById('boton-escuchar');
-        const botonDescargar = document.getElementById('boton-descargar');
-        const pantallaEstado = document.getElementById('pantalla-estado');
-        const posicionVisual = document.getElementById('posicion-actual');
-        const cuerpoTabla = document.getElementById('cuerpo-tabla');
-        const encabezadoTabla = document.getElementById('encabezado-tabla');
-
-        let filaActual = 1;
-        let columnaActual = 0; 
-        
-        const letrasColumnas = Array.from({length: 26}, (_, i) => String.fromCharCode(65 + i));
-        const totalColumnas = letrasColumnas.length;
-
-        letrasColumnas.forEach(letra => {
-            const th = document.createElement('th');
-            th.innerText = `Columna ${letra}`;
-            encabezadoTabla.appendChild(th);
-        });
-
-        let matrizDatos = [
-            Array(totalColumnas).fill(""),
-            Array(totalColumnas).fill(""),
-            Array(totalColumnas).fill(""),
-            Array(totalColumnas).fill(""),
-            Array(totalColumnas).fill("")
-        ]; 
-
-        for(let i = 1; i <= 5; i++) { agregarFilaVisual(i); }
-
+        // --- RECONOCIMIENTO ---
         const ReconocimientoVoz = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const reconocimiento = new ReconocimientoVoz();
+        reconocimiento.lang = 'es-MX';
 
-        if (!ReconocimientoVoz) {
-            pantallaEstado.innerHTML = "<span style='color:red;'>Navegador no compatible.</span>";
-        } else {
-            const reconocimiento = new ReconocimientoVoz();
-            reconocimiento.lang = 'es-MX';
+        document.getElementById('boton-escuchar').onclick = () => {
+            reconocimiento.start();
+            document.getElementById('boton-escuchar').classList.add('escuchando');
+            document.getElementById('boton-escuchar').innerText = "🛑 Escuchando...";
+        };
 
-            boton.addEventListener('click', () => {
-                try {
-                    reconocimiento.start();
-                    boton.innerText = "🛑 Escuchando...";
-                    boton.classList.add('escuchando');
-                } catch(e) {}
+        reconocimiento.onresult = (evento) => {
+            let texto = evento.results[0][0].transcript.toLowerCase().trim();
+            apagarBoton();
+
+            // 1. LIMPIEZA Y TRADUCCIÓN DE PALABRAS A NÚMEROS
+            texto = texto.replace(/ punto /g, ".").replace(/ coma /g, ".");
+            Object.keys(diccionarioNumeros).forEach(palabra => {
+                const regex = new RegExp(`\\b${palabra}\\b`, 'g');
+                texto = texto.replace(regex, diccionarioNumeros[palabra]);
             });
 
-            reconocimiento.onresult = (evento) => {
-                let textoEscuchado = evento.results[0][0].transcript.toLowerCase().trim();
-                apagarBoton();
-
-                // Normalizar palabras comunes de puntuación que el motor de voz a veces escribe como texto
-                textoEscuchado = textoEscuchado.replace(/ punto /g, ".").replace(/ coma /g, ".");
-
-                // 1. RECONOCIMIENTO DE SALTO DE COLUMNA ESPECÍFICA (Ej: "ir a columna e" o "columna e")
-                if (textoEscuchado.includes("columna")) {
-                    // Buscamos si después de la palabra "columna" se mencionó alguna letra de la A a la Z
-                    for (let i = 0; i < totalColumnas; i++) {
-                        let letraBuscada = letrasColumnas[i].toLowerCase();
-                        // Validamos que sea el comando de salto y no el de "siguiente columna"
-                        if (textoEscuchado.includes(`columna ${letraBuscada}`) || textoEscuchado.includes(`columna  ${letraBuscada}`)) {
-                            columnaActual = i;
-                            filaActual = 1;
-                            actualizarLetreroPosicion();
-                            pantallaEstado.innerHTML = `<span style="color: blue; font-weight:bold;">Saltamos a la Columna ${letrasColumnas[columnaActual]} (Fila 1)</span>`;
-                            return;
-                        }
-                    }
-                }
-
-                // 2. COMANDO SIGUIENTE COLUMNA SECUENCIAL
-                if (textoEscuchado.includes("siguiente columna")) {
-                    if (columnaActual >= totalColumnas - 1) { 
-                        pantallaEstado.innerHTML = "<span style='color:orange;'>Última columna alcanzada (Z).</span>";
+            // 2. SALTO DE COLUMNA (Recordando fila)
+            if (texto.includes("columna")) {
+                for (let i = 0; i < 26; i++) {
+                    if (texto.includes(`columna ${letrasColumnas[i].toLowerCase()}`)) {
+                        columnaActual = i;
+                        filaActual = filasPorColumna[i]; // <--- RECUPERA LA FILA DE ESTA COLUMNA
+                        actualizarLetrero();
+                        document.getElementById('pantalla-estado').innerHTML = `<span style="color:blue;">Saltamos a Columna ${letrasColumnas[i]} (Fila ${filaActual})</span>`;
                         return;
                     }
-                    columnaActual++;
-                    filaActual = 1; 
-                    actualizarLetreroPosicion();
-                    pantallaEstado.innerHTML = `<span style="color: blue; font-weight:bold;">Columna ${letrasColumnas[columnaActual]} (Fila 1)</span>`;
-                    return;
                 }
-
-                let quiereGuardar = false;
-                if (textoEscuchado.includes("guardar")) {
-                    quiereGuardar = true;
-                    textoEscuchado = textoEscuchado.replace("guardar", "").trim();
-                }
-
-                // 3. CAPTURA DE NÚMEROS (ENTEROS O DECIMALES)
-                // Expresión regular mejorada para detectar patrones como "45.2" o "12"
-                let coincidenciaNumero = textoEscuchado.match(/\d+([.,]\d+)?/);
-
-                if (coincidenciaNumero) {
-                    let numeroExtraido = coincidenciaNumero[0].replace(',', '.'); // Cambiar comas por puntos para Excel
-
-                    if (quiereGuardar) {
-                        if (filaActual > matrizDatos.length) {
-                            matrizDatos.push(Array(totalColumnas).fill(""));
-                            agregarFilaVisual(filaActual);
-                        }
-
-                        matrizDatos[filaActual - 1][columnaActual] = numeroExtraido;
-                        document.getElementById(`celda-${filaActual}-${columnaActual}`).innerText = numeroExtraido;
-                        pantallaEstado.innerHTML = `<span style="color: green; font-weight:bold;">Guardado ${numeroExtraido} en ${letrasColumnas[columnaActual]}${filaActual}</span>`;
-                        
-                        filaActual++;
-                        actualizarLetreroPosicion();
-                        botonDescargar.disabled = false;
-                    } else {
-                        pantallaEstado.innerHTML = `Número detectado: <strong>${numeroExtraido}</strong> (Di "guardar")`;
-                    }
-                } else {
-                    pantallaEstado.innerHTML = `Escuché: "${textoEscuchado}"`;
-                }
-            };
-
-            reconocimiento.onerror = () => { apagarBoton(); };
-            reconocimiento.onend = () => { apagarBoton(); };
-        }
-
-        function apagarBoton() { boton.innerText = "🎤 Empezar a escuchar"; boton.classList.remove('escuchando'); }
-        function actualizarLetreroPosicion() { posicionVisual.innerText = `📍 Posición actual en Excel: Fila ${filaActual}, Columna ${letrasColumnas[columnaActual]}`; }
-
-        function agregarFilaVisual(numeroFila) {
-            const tr = document.createElement('tr');
-            let celdasHTML = `<td style="font-weight:bold; color:#666;">${numeroFila}</td>`;
-            for(let c = 0; c < totalColumnas; c++) { celdasHTML += `<td id="celda-${numeroFila}-${c}">-</td>`; }
-            tr.innerHTML = celdasHTML;
-            cuerpoTabla.appendChild(tr);
-        }
-
-        botonDescargar.addEventListener('click', () => {
-            let nombreArchivo = prompt("¿Qué nombre deseas ponerle a tu archivo Excel?", "reporte_inventario_completo");
-
-            if (nombreArchivo === null) return; 
-
-            nombreArchivo = nombreArchivo.trim();
-            if (nombreArchivo === "") {
-                nombreArchivo = "registro_voz_completo";
             }
 
-            let contenidoCSV = "\uFEFF" + letrasColumnas.map(l => `Columna ${l}`).join(",") + "\n";
-            matrizDatos.forEach(fila => { contenidoCSV += fila.join(",") + "\n"; });
-            
-            let blob = new Blob([contenidoCSV], { type: 'text/csv;charset=utf-8;' });
-            let link = document.createElement("a");
-            link.setAttribute("href", URL.createObjectURL(blob));
-            link.setAttribute("download", `${nombreArchivo}.csv`);
-            
-            document.body.appendChild(link); 
-            link.click(); 
-            document.body.removeChild(link);
-        });
+            // 3. GUARDAR DATO
+            let quiereGuardar = texto.includes("guardar");
+            if (quiereGuardar) texto = texto.replace("guardar", "").trim();
+
+            let match = texto.match(/\d+([.,]\d+)?/);
+            if (match) {
+                let valor = match[0].replace(',', '.');
+                if (quiereGuardar) {
+                    // Asegurar que la fila existe en la matriz y tabla
+                    while (filaActual > matrizDatos.length) { 
+                        matrizDatos.push(Array(26).fill("")); 
+                        agregarFilaVisual(matrizDatos.length);
+                    }
+
+                    matrizDatos[filaActual - 1][columnaActual] = valor;
+                    document.getElementById(`celda-${filaActual}-${columnaActual}`).innerText = valor;
+                    document.getElementById('pantalla-estado').innerHTML = `<span style="color:green;">Guardado ${valor} en ${letrasColumnas[columnaActual]}${filaActual}</span>`;
+                    
+                    filaActual++;
+                    filasPorColumna[columnaActual] = filaActual; // <--- GUARDA EL PROGRESO DE ESTA COLUMNA
+                    actualizarLetrero();
+                    document.getElementById('boton-descargar').disabled = false;
+                } else {
+                    document.getElementById('pantalla-estado').innerHTML = `Detectado: <strong>${valor}</strong> (Di "guardar")`;
+                }
+            }
+        };
+
+        reconocimiento.onend = apagarBoton;
+        function apagarBoton() { 
+            document.getElementById('boton-escuchar').classList.remove('escuchando');
+            document.getElementById('boton-escuchar').innerText = "🎤 Empezar a escuchar";
+        }
+
+        function actualizarLetrero() {
+            document.getElementById('posicion-actual').innerText = `📍 Fila ${filaActual}, Columna ${letrasColumnas[columnaActual]}`;
+        }
+
+        function agregarFilaVisual(n) {
+            const tr = document.createElement('tr');
+            let html = `<td style="font-weight:bold; color:#666;">${n}</td>`;
+            for(let c=0; c<26; c++) html += `<td id="celda-${n}-${c}">-</td>`;
+            tr.innerHTML = html;
+            document.getElementById('cuerpo-tabla').appendChild(tr);
+        }
+
+        document.getElementById('boton-descargar').onclick = () => {
+            let nombre = prompt("Nombre del archivo:", "reporte") || "registro";
+            let csv = "\uFEFF" + letrasColumnas.map(l => `Col ${l}`).join(",") + "\n";
+            matrizDatos.forEach(f => csv += f.join(",") + "\n");
+            let blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            let a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = `${nombre}.csv`;
+            a.click();
+        };
     </script>
 </body>
 </html>
