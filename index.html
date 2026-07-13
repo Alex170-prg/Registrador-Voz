@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registrador de Voz Multicolumna (A-Z)</title>
+    <title>Registrador de Voz Profesional (A-Z)</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -31,7 +31,7 @@
         #pantalla-bloqueo button {
             padding: 10px 20px; margin-top: 10px; border: none; background-color: #107c41; color: white; font-weight: bold; border-radius: 6px; cursor: pointer;
         }
-        /* Contenedor Principal (Oculto al inicio) */
+        /* Contenedor Principal */
         .container {
             display: none;
             max-width: 1200px;
@@ -43,7 +43,8 @@
         }
         h1 { color: #1f4e79; margin-bottom: 5px; }
         .instructions {
-            background: #eef4fa; padding: 12px; border-radius: 8px; font-size: 14px; color: #333; margin-bottom: 25px; text-align: left;
+            background: #eef4fa; padding: 15px; border-radius: 8px; font-size: 14px; color: #333; margin-bottom: 25px; text-align: left;
+            line-height: 1.6;
         }
         .btn-mic {
             background-color: #1f4e79; color: white; border: none; padding: 15px 30px; font-size: 18px; font-weight: bold; border-radius: 50px; cursor: pointer; transition: all 0.3s ease;
@@ -52,7 +53,6 @@
         #pantalla-estado { margin: 20px 0; padding: 15px; background-color: #f8f9fa; border-radius: 8px; min-height: 50px; font-size: 18px; }
         #posicion-actual { font-weight: bold; color: #2f5597; margin-bottom: 15px; font-size: 16px; }
         
-        /* Ajustes para scroll horizontal con 26 columnas */
         .tabla-contenedor { 
             width: 100%; 
             overflow-x: auto; 
@@ -84,8 +84,9 @@
         
         <div class="instructions">
             <strong>Comandos de voz disponibles:</strong><br>
-            • Di un número + <strong>"guardar"</strong> (Ej: <em>"45 guardar"</em>) -> Guarda en la celda y baja automáticamente.<br>
-            • Di <strong>"siguiente columna"</strong> o <strong>"columna"</strong> -> Cambia a la derecha y regresa a la Fila 1.
+            • Di un número entero o decimal + <strong>"guardar"</strong> (Ej: <em>"45 punto 2 guardar"</em> o <em>"120 guardar"</em>).<br>
+            • Di <strong>"siguiente columna"</strong> para moverte una posición a la derecha.<br>
+            • Di <strong>"ir a columna [Letra]"</strong> o <strong>"columna [Letra]"</strong> para saltar directamente (Ej: <em>"ir a columna E"</em> o <em>"columna Z"</em>).
         </div>
 
         <div id="posicion-actual">📍 Posición actual en Excel: Fila 1, Columna A</div>
@@ -100,7 +101,7 @@
                 <thead>
                     <tr id="encabezado-tabla">
                         <th>Fila</th>
-                        </tr>
+                    </tr>
                 </thead>
                 <tbody id="cuerpo-tabla"></tbody>
             </table>
@@ -111,7 +112,7 @@
 
     <script>
         // --- CONTROL DE CONTRASEÑA ---
-        const CONTRASEÑA_CORRECTA = "C134"; // 👈 Nueva contraseña actualizada aquí
+        const CONTRASEÑA_CORRECTA = "C134"; 
         
         document.getElementById('btn-login').addEventListener('click', validarAcceso);
         document.getElementById('input-password').addEventListener('keypress', (e) => {
@@ -178,7 +179,27 @@
                 let textoEscuchado = evento.results[0][0].transcript.toLowerCase().trim();
                 apagarBoton();
 
-                if (textoEscuchado.includes("siguiente columna") || textoEscuchado.includes("columna")) {
+                // Normalizar palabras comunes de puntuación que el motor de voz a veces escribe como texto
+                textoEscuchado = textoEscuchado.replace(/ punto /g, ".").replace(/ coma /g, ".");
+
+                // 1. RECONOCIMIENTO DE SALTO DE COLUMNA ESPECÍFICA (Ej: "ir a columna e" o "columna e")
+                if (textoEscuchado.includes("columna")) {
+                    // Buscamos si después de la palabra "columna" se mencionó alguna letra de la A a la Z
+                    for (let i = 0; i < totalColumnas; i++) {
+                        let letraBuscada = letrasColumnas[i].toLowerCase();
+                        // Validamos que sea el comando de salto y no el de "siguiente columna"
+                        if (textoEscuchado.includes(`columna ${letraBuscada}`) || textoEscuchado.includes(`columna  ${letraBuscada}`)) {
+                            columnaActual = i;
+                            filaActual = 1;
+                            actualizarLetreroPosicion();
+                            pantallaEstado.innerHTML = `<span style="color: blue; font-weight:bold;">Saltamos a la Columna ${letrasColumnas[columnaActual]} (Fila 1)</span>`;
+                            return;
+                        }
+                    }
+                }
+
+                // 2. COMANDO SIGUIENTE COLUMNA SECUENCIAL
+                if (textoEscuchado.includes("siguiente columna")) {
                     if (columnaActual >= totalColumnas - 1) { 
                         pantallaEstado.innerHTML = "<span style='color:orange;'>Última columna alcanzada (Z).</span>";
                         return;
@@ -196,10 +217,12 @@
                     textoEscuchado = textoEscuchado.replace("guardar", "").trim();
                 }
 
-                let coincidenciaNumero = textoEscuchado.match(/\d+/);
+                // 3. CAPTURA DE NÚMEROS (ENTEROS O DECIMALES)
+                // Expresión regular mejorada para detectar patrones como "45.2" o "12"
+                let coincidenciaNumero = textoEscuchado.match(/\d+([.,]\d+)?/);
 
                 if (coincidenciaNumero) {
-                    let numeroExtraido = coincidenciaNumero[0];
+                    let numeroExtraido = coincidenciaNumero[0].replace(',', '.'); // Cambiar comas por puntos para Excel
 
                     if (quiereGuardar) {
                         if (filaActual > matrizDatos.length) {
@@ -215,7 +238,7 @@
                         actualizarLetreroPosicion();
                         botonDescargar.disabled = false;
                     } else {
-                        pantallaEstado.innerHTML = `Número: <strong>${numeroExtraido}</strong> (Di "guardar")`;
+                        pantallaEstado.innerHTML = `Número detectado: <strong>${numeroExtraido}</strong> (Di "guardar")`;
                     }
                 } else {
                     pantallaEstado.innerHTML = `Escuché: "${textoEscuchado}"`;
@@ -238,7 +261,7 @@
         }
 
         botonDescargar.addEventListener('click', () => {
-            let nombreArchivo = prompt("¿Qué nombre deseas ponerle a tu archivo Excel?", "reporte_inventario_AZ");
+            let nombreArchivo = prompt("¿Qué nombre deseas ponerle a tu archivo Excel?", "reporte_inventario_completo");
 
             if (nombreArchivo === null) return; 
 
