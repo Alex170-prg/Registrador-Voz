@@ -13,8 +13,28 @@
             padding: 40px 20px;
             text-align: center;
         }
+        /* Pantalla de bloqueo */
+        #pantalla-bloqueo {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #1f4e79;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            color: white;
+        }
+        #pantalla-bloqueo input {
+            padding: 12px; font-size: 16px; border-radius: 6px; border: none; margin-top: 15px; width: 200px; text-align: center;
+        }
+        #pantalla-bloqueo button {
+            padding: 10px 20px; margin-top: 10px; border: none; background-color: #107c41; color: white; font-weight: bold; border-radius: 6px; cursor: pointer;
+        }
+        /* Contenedor Principal (Oculto al inicio) */
         .container {
-            max-width: 1000px; /* Más ancho para las 10 columnas */
+            display: none;
+            max-width: 1000px;
             margin: 0 auto;
             background: white;
             padding: 30px;
@@ -23,55 +43,35 @@
         }
         h1 { color: #1f4e79; margin-bottom: 5px; }
         .instructions {
-            background: #eef4fa;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 14px;
-            color: #333;
-            margin-bottom: 25px;
-            text-align: left;
+            background: #eef4fa; padding: 12px; border-radius: 8px; font-size: 14px; color: #333; margin-bottom: 25px; text-align: left;
         }
         .btn-mic {
-            background-color: #1f4e79; color: white; border: none;
-            padding: 15px 30px; font-size: 18px; font-weight: bold;
-            border-radius: 50px; cursor: pointer; transition: all 0.3s ease;
+            background-color: #1f4e79; color: white; border: none; padding: 15px 30px; font-size: 18px; font-weight: bold; border-radius: 50px; cursor: pointer; transition: all 0.3s ease;
         }
         .btn-mic.escuchando { background-color: #d9534f; animation: pulso 1.5s infinite; }
-        #pantalla-estado {
-            margin: 20px 0; padding: 15px; background-color: #f8f9fa;
-            border-radius: 8px; min-height: 50px; font-size: 18px;
-        }
-        #posicion-actual {
-            font-weight: bold; color: #2f5597; margin-bottom: 15px; font-size: 16px;
-        }
-        /* Contenedor responsivo para que la tabla no tape la pantalla */
-        .tabla-contenedor {
-            width: 100%;
-            overflow-x: auto;
-            margin-top: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.02);
-        }
+        #pantalla-estado { margin: 20px 0; padding: 15px; background-color: #f8f9fa; border-radius: 8px; min-height: 50px; font-size: 18px; }
+        #posicion-actual { font-weight: bold; color: #2f5597; margin-bottom: 15px; font-size: 16px; }
+        .tabla-contenedor { width: 100%; overflow-x: auto; margin-top: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.02); }
         table { width: 100%; border-collapse: collapse; min-width: 800px; }
         th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: center; font-size: 14px; }
         th { background-color: #2f5597; color: white; }
         tr:nth-child(even) { background-color: #f9fbfd; }
-        .btn-excel {
-            background-color: #107c41; color: white; border: none;
-            padding: 12px 25px; font-size: 16px; font-weight: bold;
-            border-radius: 6px; cursor: pointer; margin-top: 25px;
-        }
+        .btn-excel { background-color: #107c41; color: white; border: none; padding: 12px 25px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; margin-top: 25px; }
         .btn-excel:disabled { background-color: #cccccc; cursor: not-allowed; }
-        @keyframes pulso {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.03); }
-            100% { transform: scale(1); }
-        }
+        @keyframes pulso { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body>
 
-    <div class="container">
+    <div id="pantalla-bloqueo">
+        <h2>🔒 Sistema Privado de Registro</h2>
+        <p>Por favor, ingresa la contraseña de acceso:</p>
+        <input type="password" id="input-password" placeholder="Contraseña">
+        <button id="btn-login">Ingresar</button>
+        <p id="error-password" style="color: #ff9999; margin-top: 10px; display: none;">Contraseña incorrecta. Inténtalo de nuevo.</p>
+    </div>
+
+    <div class="container" id="app-content">
         <h1>Registro Vertical por Voz (10 Columnas)</h1>
         
         <div class="instructions">
@@ -104,8 +104,7 @@
                         <th>Columna J</th>
                     </tr>
                 </thead>
-                <tbody id="cuerpo-tabla">
-                    </tbody>
+                <tbody id="cuerpo-tabla"></tbody>
             </table>
         </div>
 
@@ -113,6 +112,25 @@
     </div>
 
     <script>
+        // --- CONTROL DE CONTRASEÑA ---
+        const CONTRASEÑA_CORRECTA = "C134"; // 👈 Aquí cambias la clave si quieres
+        
+        document.getElementById('btn-login').addEventListener('click', validarAcceso);
+        document.getElementById('input-password').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') validarAcceso();
+        });
+
+        function validarAcceso() {
+            const passIntroducida = document.getElementById('input-password').value;
+            if (passIntroducida === CONTRASEÑA_CORRECTA) {
+                document.getElementById('pantalla-bloqueo').style.display = 'none';
+                document.getElementById('app-content').style.display = 'block';
+            } else {
+                document.getElementById('error-password').style.display = 'block';
+            }
+        }
+
+        // --- LÓGICA DE LA APLICACIÓN ---
         const boton = document.getElementById('boton-escuchar');
         const botonDescargar = document.getElementById('boton-descargar');
         const pantallaEstado = document.getElementById('pantalla-estado');
@@ -121,12 +139,9 @@
 
         let filaActual = 1;
         let columnaActual = 0; 
-        
-        // 1. Ampliamos la lista de letras hasta la J
         const letrasColumnas = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']; 
         const totalColumnas = letrasColumnas.length;
 
-        // 2. Iniciamos la matriz con 10 espacios vacíos por fila
         let matrizDatos = [
             ["", "", "", "", "", "", "", "", "", ""],
             ["", "", "", "", "", "", "", "", "", ""],
@@ -135,9 +150,7 @@
             ["", "", "", "", "", "", "", "", "", ""]
         ]; 
 
-        for(let i = 1; i <= 5; i++) {
-            agregarFilaVisual(i);
-        }
+        for(let i = 1; i <= 5; i++) { agregarFilaVisual(i); }
 
         const ReconocimientoVoz = window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -161,13 +174,13 @@
 
                 if (textoEscuchado.includes("siguiente columna") || textoEscuchado.includes("columna")) {
                     if (columnaActual >= totalColumnas - 1) { 
-                        pantallaEstado.innerHTML = "<span style='color:orange;'>Ya estás en la última columna disponible (J).</span>";
+                        pantallaEstado.innerHTML = "<span style='color:orange;'>Última columna (J).</span>";
                         return;
                     }
                     columnaActual++;
                     filaActual = 1; 
                     actualizarLetreroPosicion();
-                    pantallaEstado.innerHTML = `<span style="color: blue; font-weight:bold;">Cambiamos a la Columna ${letrasColumnas[columnaActual]} (Fila 1)</span>`;
+                    pantallaEstado.innerHTML = `<span style="color: blue; font-weight:bold;">Columna ${letrasColumnas[columnaActual]} (Fila 1)</span>`;
                     return;
                 }
 
@@ -184,24 +197,22 @@
 
                     if (quiereGuardar) {
                         if (filaActual > matrizDatos.length) {
-                            // Si se pasan de 5 filas, añadimos otra fila con 10 espacios
                             matrizDatos.push(Array(totalColumnas).fill(""));
                             agregarFilaVisual(filaActual);
                         }
 
                         matrizDatos[filaActual - 1][columnaActual] = numeroExtraido;
                         document.getElementById(`celda-${filaActual}-${columnaActual}`).innerText = numeroExtraido;
-
                         pantallaEstado.innerHTML = `<span style="color: green; font-weight:bold;">Guardado ${numeroExtraido} en ${letrasColumnas[columnaActual]}${filaActual}</span>`;
                         
                         filaActual++;
                         actualizarLetreroPosicion();
                         botonDescargar.disabled = false;
                     } else {
-                        pantallaEstado.innerHTML = `Número detectado: <strong>${numeroExtraido}</strong> (Di "guardar")`;
+                        pantallaEstado.innerHTML = `Número: <strong>${numeroExtraido}</strong> (Di "guardar")`;
                     }
                 } else {
-                    pantallaEstado.innerHTML = `Escuché: "${textoEscuchado}" (No se detectó número o comando)`;
+                    pantallaEstado.innerHTML = `Escuché: "${textoEscuchado}"`;
                 }
             };
 
@@ -209,43 +220,25 @@
             reconocimiento.onend = () => { apagarBoton(); };
         }
 
-        function apagarBoton() {
-            boton.innerText = "🎤 Empezar a escuchar";
-            boton.classList.remove('escuchando');
-        }
-
-        function actualizarLetreroPosicion() {
-            posicionVisual.innerText = `📍 Posición actual en Excel: Fila ${filaActual}, Columna ${letrasColumnas[columnaActual]}`;
-        }
+        function apagarBoton() { boton.innerText = "🎤 Empezar a escuchar"; boton.classList.remove('escuchando'); }
+        function actualizarLetreroPosicion() { posicionVisual.innerText = `📍 Posición actual en Excel: Fila ${filaActual}, Columna ${letrasColumnas[columnaActual]}`; }
 
         function agregarFilaVisual(numeroFila) {
             const tr = document.createElement('tr');
             let celdasHTML = `<td style="font-weight:bold; color:#666;">${numeroFila}</td>`;
-            
-            // Un bucle rápido para generar los 10 <td> automáticamente sin escribir uno por uno
-            for(let c = 0; c < totalColumnas; c++) {
-                celdasHTML += `<td id="celda-${numeroFila}-${c}">-</td>`;
-            }
-            
+            for(let c = 0; c < totalColumnas; c++) { celdasHTML += `<td id="celda-${numeroFila}-${c}">-</td>`; }
             tr.innerHTML = celdasHTML;
             cuerpoTabla.appendChild(tr);
         }
 
         botonDescargar.addEventListener('click', () => {
-            // Unimos los títulos de las 10 columnas
             let contenidoCSV = "\uFEFF" + letrasColumnas.map(l => `Columna ${l}`).join(",") + "\n";
-            
-            matrizDatos.forEach(fila => {
-                contenidoCSV += fila.join(",") + "\n";
-            });
-
+            matrizDatos.forEach(fila => { contenidoCSV += fila.join(",") + "\n"; });
             let blob = new Blob([contenidoCSV], { type: 'text/csv;charset=utf-8;' });
             let link = document.createElement("a");
             link.setAttribute("href", URL.createObjectURL(blob));
             link.setAttribute("download", "registro_10_columnas.csv");
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
         });
     </script>
 </body>
