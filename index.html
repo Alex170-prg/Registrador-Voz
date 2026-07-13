@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registrador de Voz Multicolumna (A-J)</title>
+    <title>Registrador de Voz Multicolumna (A-Z)</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -34,7 +34,7 @@
         /* Contenedor Principal (Oculto al inicio) */
         .container {
             display: none;
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
             background: white;
             padding: 30px;
@@ -51,9 +51,17 @@
         .btn-mic.escuchando { background-color: #d9534f; animation: pulso 1.5s infinite; }
         #pantalla-estado { margin: 20px 0; padding: 15px; background-color: #f8f9fa; border-radius: 8px; min-height: 50px; font-size: 18px; }
         #posicion-actual { font-weight: bold; color: #2f5597; margin-bottom: 15px; font-size: 16px; }
-        .tabla-contenedor { width: 100%; overflow-x: auto; margin-top: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.02); }
-        table { width: 100%; border-collapse: collapse; min-width: 800px; }
-        th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: center; font-size: 14px; }
+        
+        /* Ajustes para scroll horizontal con 26 columnas */
+        .tabla-contenedor { 
+            width: 100%; 
+            overflow-x: auto; 
+            margin-top: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 0 10px rgba(0,0,0,0.02); 
+        }
+        table { width: 100%; border-collapse: collapse; min-width: 1800px; }
+        th, td { padding: 10px 5px; border-bottom: 1px solid #ddd; text-align: center; font-size: 13px; min-width: 65px; }
         th { background-color: #2f5597; color: white; }
         tr:nth-child(even) { background-color: #f9fbfd; }
         .btn-excel { background-color: #107c41; color: white; border: none; padding: 12px 25px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; margin-top: 25px; }
@@ -72,7 +80,7 @@
     </div>
 
     <div class="container" id="app-content">
-        <h1>Registro Vertical por Voz (10 Columnas)</h1>
+        <h1>Registro Vertical por Voz (Columnas A - Z)</h1>
         
         <div class="instructions">
             <strong>Comandos de voz disponibles:</strong><br>
@@ -90,19 +98,9 @@
         <div class="tabla-contenedor">
             <table>
                 <thead>
-                    <tr>
+                    <tr id="encabezado-tabla">
                         <th>Fila</th>
-                        <th>Columna A</th>
-                        <th>Columna B</th>
-                        <th>Columna C</th>
-                        <th>Columna D</th>
-                        <th>Columna E</th>
-                        <th>Columna F</th>
-                        <th>Columna G</th>
-                        <th>Columna H</th>
-                        <th>Columna I</th>
-                        <th>Columna J</th>
-                    </tr>
+                        </tr>
                 </thead>
                 <tbody id="cuerpo-tabla"></tbody>
             </table>
@@ -113,7 +111,7 @@
 
     <script>
         // --- CONTROL DE CONTRASEÑA ---
-        const CONTRASEÑA_CORRECTA = "C134"; // 👈 Aquí cambias la clave si quieres
+        const CONTRASEÑA_CORRECTA = "C134"; // 👈 Nueva contraseña actualizada aquí
         
         document.getElementById('btn-login').addEventListener('click', validarAcceso);
         document.getElementById('input-password').addEventListener('keypress', (e) => {
@@ -136,18 +134,26 @@
         const pantallaEstado = document.getElementById('pantalla-estado');
         const posicionVisual = document.getElementById('posicion-actual');
         const cuerpoTabla = document.getElementById('cuerpo-tabla');
+        const encabezadoTabla = document.getElementById('encabezado-tabla');
 
         let filaActual = 1;
         let columnaActual = 0; 
-        const letrasColumnas = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']; 
+        
+        const letrasColumnas = Array.from({length: 26}, (_, i) => String.fromCharCode(65 + i));
         const totalColumnas = letrasColumnas.length;
 
+        letrasColumnas.forEach(letra => {
+            const th = document.createElement('th');
+            th.innerText = `Columna ${letra}`;
+            encabezadoTabla.appendChild(th);
+        });
+
         let matrizDatos = [
-            ["", "", "", "", "", "", "", "", "", ""],
-            ["", "", "", "", "", "", "", "", "", ""],
-            ["", "", "", "", "", "", "", "", "", ""],
-            ["", "", "", "", "", "", "", "", "", ""],
-            ["", "", "", "", "", "", "", "", "", ""]
+            Array(totalColumnas).fill(""),
+            Array(totalColumnas).fill(""),
+            Array(totalColumnas).fill(""),
+            Array(totalColumnas).fill(""),
+            Array(totalColumnas).fill("")
         ]; 
 
         for(let i = 1; i <= 5; i++) { agregarFilaVisual(i); }
@@ -174,7 +180,7 @@
 
                 if (textoEscuchado.includes("siguiente columna") || textoEscuchado.includes("columna")) {
                     if (columnaActual >= totalColumnas - 1) { 
-                        pantallaEstado.innerHTML = "<span style='color:orange;'>Última columna (J).</span>";
+                        pantallaEstado.innerHTML = "<span style='color:orange;'>Última columna alcanzada (Z).</span>";
                         return;
                     }
                     columnaActual++;
@@ -232,13 +238,26 @@
         }
 
         botonDescargar.addEventListener('click', () => {
+            let nombreArchivo = prompt("¿Qué nombre deseas ponerle a tu archivo Excel?", "reporte_inventario_AZ");
+
+            if (nombreArchivo === null) return; 
+
+            nombreArchivo = nombreArchivo.trim();
+            if (nombreArchivo === "") {
+                nombreArchivo = "registro_voz_completo";
+            }
+
             let contenidoCSV = "\uFEFF" + letrasColumnas.map(l => `Columna ${l}`).join(",") + "\n";
             matrizDatos.forEach(fila => { contenidoCSV += fila.join(",") + "\n"; });
+            
             let blob = new Blob([contenidoCSV], { type: 'text/csv;charset=utf-8;' });
             let link = document.createElement("a");
             link.setAttribute("href", URL.createObjectURL(blob));
-            link.setAttribute("download", "registro_10_columnas.csv");
-            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+            link.setAttribute("download", `${nombreArchivo}.csv`);
+            
+            document.body.appendChild(link); 
+            link.click(); 
+            document.body.removeChild(link);
         });
     </script>
 </body>
