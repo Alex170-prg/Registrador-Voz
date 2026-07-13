@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrador de Voz Multicolumna (A-J)</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .container {
+            max-width: 1000px; /* Más ancho para las 10 columnas */
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        h1 { color: #1f4e79; margin-bottom: 5px; }
+        .instructions {
+            background: #eef4fa;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 25px;
+            text-align: left;
+        }
+        .btn-mic {
+            background-color: #1f4e79; color: white; border: none;
+            padding: 15px 30px; font-size: 18px; font-weight: bold;
+            border-radius: 50px; cursor: pointer; transition: all 0.3s ease;
+        }
+        .btn-mic.escuchando { background-color: #d9534f; animation: pulso 1.5s infinite; }
+        #pantalla-estado {
+            margin: 20px 0; padding: 15px; background-color: #f8f9fa;
+            border-radius: 8px; min-height: 50px; font-size: 18px;
+        }
+        #posicion-actual {
+            font-weight: bold; color: #2f5597; margin-bottom: 15px; font-size: 16px;
+        }
+        /* Contenedor responsivo para que la tabla no tape la pantalla */
+        .tabla-contenedor {
+            width: 100%;
+            overflow-x: auto;
+            margin-top: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.02);
+        }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: center; font-size: 14px; }
+        th { background-color: #2f5597; color: white; }
+        tr:nth-child(even) { background-color: #f9fbfd; }
+        .btn-excel {
+            background-color: #107c41; color: white; border: none;
+            padding: 12px 25px; font-size: 16px; font-weight: bold;
+            border-radius: 6px; cursor: pointer; margin-top: 25px;
+        }
+        .btn-excel:disabled { background-color: #cccccc; cursor: not-allowed; }
+        @keyframes pulso {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Registro Vertical por Voz (10 Columnas)</h1>
+        
+        <div class="instructions">
+            <strong>Comandos de voz disponibles:</strong><br>
+            • Di un número + <strong>"guardar"</strong> (Ej: <em>"45 guardar"</em>) -> Guarda en la celda y baja automáticamente.<br>
+            • Di <strong>"siguiente columna"</strong> o <strong>"columna"</strong> -> Cambia a la derecha y regresa a la Fila 1.
+        </div>
+
+        <div id="posicion-actual">📍 Posición actual en Excel: Fila 1, Columna A</div>
+        
+        <button id="boton-escuchar" class="btn-mic">🎤 Empezar a escuchar</button>
+        
+        <div id="pantalla-estado"><span style="color: #999;">Micrófono apagado.</span></div>
+
+        <h3>📋 Vista Previa de la Tabla</h3>
+        <div class="tabla-contenedor">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fila</th>
+                        <th>Columna A</th>
+                        <th>Columna B</th>
+                        <th>Columna C</th>
+                        <th>Columna D</th>
+                        <th>Columna E</th>
+                        <th>Columna F</th>
+                        <th>Columna G</th>
+                        <th>Columna H</th>
+                        <th>Columna I</th>
+                        <th>Columna J</th>
+                    </tr>
+                </thead>
+                <tbody id="cuerpo-tabla">
+                    </tbody>
+            </table>
+        </div>
+
+        <button id="boton-descargar" class="btn-excel" disabled>📥 Descargar Reporte Excel (.csv)</button>
+    </div>
+
+    <script>
+        const boton = document.getElementById('boton-escuchar');
+        const botonDescargar = document.getElementById('boton-descargar');
+        const pantallaEstado = document.getElementById('pantalla-estado');
+        const posicionVisual = document.getElementById('posicion-actual');
+        const cuerpoTabla = document.getElementById('cuerpo-tabla');
+
+        let filaActual = 1;
+        let columnaActual = 0; 
+        
+        // 1. Ampliamos la lista de letras hasta la J
+        const letrasColumnas = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']; 
+        const totalColumnas = letrasColumnas.length;
+
+        // 2. Iniciamos la matriz con 10 espacios vacíos por fila
+        let matrizDatos = [
+            ["", "", "", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", "", "", ""]
+        ]; 
+
+        for(let i = 1; i <= 5; i++) {
+            agregarFilaVisual(i);
+        }
+
+        const ReconocimientoVoz = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (!ReconocimientoVoz) {
+            pantallaEstado.innerHTML = "<span style='color:red;'>Navegador no compatible.</span>";
+        } else {
+            const reconocimiento = new ReconocimientoVoz();
+            reconocimiento.lang = 'es-MX';
+
+            boton.addEventListener('click', () => {
+                try {
+                    reconocimiento.start();
+                    boton.innerText = "🛑 Escuchando...";
+                    boton.classList.add('escuchando');
+                } catch(e) {}
+            });
+
+            reconocimiento.onresult = (evento) => {
+                let textoEscuchado = evento.results[0][0].transcript.toLowerCase().trim();
+                apagarBoton();
+
+                if (textoEscuchado.includes("siguiente columna") || textoEscuchado.includes("columna")) {
+                    if (columnaActual >= totalColumnas - 1) { 
+                        pantallaEstado.innerHTML = "<span style='color:orange;'>Ya estás en la última columna disponible (J).</span>";
+                        return;
+                    }
+                    columnaActual++;
+                    filaActual = 1; 
+                    actualizarLetreroPosicion();
+                    pantallaEstado.innerHTML = `<span style="color: blue; font-weight:bold;">Cambiamos a la Columna ${letrasColumnas[columnaActual]} (Fila 1)</span>`;
+                    return;
+                }
+
+                let quiereGuardar = false;
+                if (textoEscuchado.includes("guardar")) {
+                    quiereGuardar = true;
+                    textoEscuchado = textoEscuchado.replace("guardar", "").trim();
+                }
+
+                let coincidenciaNumero = textoEscuchado.match(/\d+/);
+
+                if (coincidenciaNumero) {
+                    let numeroExtraido = coincidenciaNumero[0];
+
+                    if (quiereGuardar) {
+                        if (filaActual > matrizDatos.length) {
+                            // Si se pasan de 5 filas, añadimos otra fila con 10 espacios
+                            matrizDatos.push(Array(totalColumnas).fill(""));
+                            agregarFilaVisual(filaActual);
+                        }
+
+                        matrizDatos[filaActual - 1][columnaActual] = numeroExtraido;
+                        document.getElementById(`celda-${filaActual}-${columnaActual}`).innerText = numeroExtraido;
+
+                        pantallaEstado.innerHTML = `<span style="color: green; font-weight:bold;">Guardado ${numeroExtraido} en ${letrasColumnas[columnaActual]}${filaActual}</span>`;
+                        
+                        filaActual++;
+                        actualizarLetreroPosicion();
+                        botonDescargar.disabled = false;
+                    } else {
+                        pantallaEstado.innerHTML = `Número detectado: <strong>${numeroExtraido}</strong> (Di "guardar")`;
+                    }
+                } else {
+                    pantallaEstado.innerHTML = `Escuché: "${textoEscuchado}" (No se detectó número o comando)`;
+                }
+            };
+
+            reconocimiento.onerror = () => { apagarBoton(); };
+            reconocimiento.onend = () => { apagarBoton(); };
+        }
+
+        function apagarBoton() {
+            boton.innerText = "🎤 Empezar a escuchar";
+            boton.classList.remove('escuchando');
+        }
+
+        function actualizarLetreroPosicion() {
+            posicionVisual.innerText = `📍 Posición actual en Excel: Fila ${filaActual}, Columna ${letrasColumnas[columnaActual]}`;
+        }
+
+        function agregarFilaVisual(numeroFila) {
+            const tr = document.createElement('tr');
+            let celdasHTML = `<td style="font-weight:bold; color:#666;">${numeroFila}</td>`;
+            
+            // Un bucle rápido para generar los 10 <td> automáticamente sin escribir uno por uno
+            for(let c = 0; c < totalColumnas; c++) {
+                celdasHTML += `<td id="celda-${numeroFila}-${c}">-</td>`;
+            }
+            
+            tr.innerHTML = celdasHTML;
+            cuerpoTabla.appendChild(tr);
+        }
+
+        botonDescargar.addEventListener('click', () => {
+            // Unimos los títulos de las 10 columnas
+            let contenidoCSV = "\uFEFF" + letrasColumnas.map(l => `Columna ${l}`).join(",") + "\n";
+            
+            matrizDatos.forEach(fila => {
+                contenidoCSV += fila.join(",") + "\n";
+            });
+
+            let blob = new Blob([contenidoCSV], { type: 'text/csv;charset=utf-8;' });
+            let link = document.createElement("a");
+            link.setAttribute("href", URL.createObjectURL(blob));
+            link.setAttribute("download", "registro_10_columnas.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    </script>
+</body>
+</html>
